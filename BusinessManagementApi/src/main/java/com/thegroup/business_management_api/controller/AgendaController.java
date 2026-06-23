@@ -4,7 +4,9 @@ import com.thegroup.business_management_api.model.Agenda;
 import com.thegroup.business_management_api.service.AgendaService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import java.net.URI;
 import java.util.List;
 import java.util.Optional;
 
@@ -40,14 +42,13 @@ public class AgendaController {
     // Cadastra uma nova agenda
     @PostMapping
     public ResponseEntity<Agenda> cadastrar(@RequestBody Agenda agenda) {
-
         Agenda nova = service.cadastrar(agenda);
-
         if (nova != null) {
-            return ResponseEntity.ok(nova); // retorna 200, ok
+            URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}")
+                    .buildAndExpand(nova.getIdAgenda()).toUri();
+            return ResponseEntity.created(uri).body(nova);
         }
-
-        return ResponseEntity.badRequest().build(); // retorna 400, dados invalidos
+        return ResponseEntity.badRequest().build();
     }
 
     // Atualiza uma agenda existente
@@ -68,12 +69,7 @@ public class AgendaController {
     // Remove uma agenda pelo ID
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> remover(@PathVariable Long id) {
-
-        if (service.excluir(id)) {
-            return ResponseEntity.ok().build(); // retorna 200, ok
-        }
-
-        return ResponseEntity.notFound().build(); // retorna 404, id nao existe
+        return service.excluir(id) ? ResponseEntity.noContent().build() : ResponseEntity.notFound().build();
     }
 
     // Retorna os compromissos pendentes de uma agenda

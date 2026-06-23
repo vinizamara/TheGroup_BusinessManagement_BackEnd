@@ -2,7 +2,6 @@ package com.thegroup.business_management_api.controller;
 
 import com.thegroup.business_management_api.model.Cliente;
 import com.thegroup.business_management_api.service.RelatorioContatosService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -12,8 +11,11 @@ import java.util.List;
 @RequestMapping("/relatorios") // http://localhost:8080/relatorios
 public class RelatorioController {
 
-    @Autowired
     private RelatorioContatosService service;
+
+    public RelatorioController(RelatorioContatosService service) {
+        this.service = service;
+    }
 
     @PostMapping("/adicionar/{id}")
     public ResponseEntity<String> adicionarCliente(@PathVariable Long id) {
@@ -31,6 +33,7 @@ public class RelatorioController {
     public ResponseEntity<List<Cliente>> listarFila() {
         return ResponseEntity.ok(service.getFilaEspera());
     }
+
 
     @GetMapping("/gerar")
     public ResponseEntity<String> gerarRelatorio() {

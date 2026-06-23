@@ -2,39 +2,59 @@ package com.thegroup.business_management_api.service;
 
 import com.thegroup.business_management_api.model.Cliente;
 import com.thegroup.business_management_api.model.Exportavel;
+import com.thegroup.business_management_api.model.FilaRelatorio;
 import com.thegroup.business_management_api.repository.ClienteRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.thegroup.business_management_api.repository.FilaRelatorioRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
 public class RelatorioContatosService implements Exportavel {
 
-    private List<Cliente> filaEspera = new ArrayList<>();
+    private final ClienteRepository clienteRepository;
+    private final FilaRelatorioRepository filaRelatorioRepository;
 
-    @Autowired
-    private ClienteRepository repository;
+    public RelatorioContatosService(ClienteRepository clienteRepository,
+                                    FilaRelatorioRepository filaRelatorioRepository) {
+        this.clienteRepository = clienteRepository;
+        this.filaRelatorioRepository = filaRelatorioRepository;
+    }
 
+    @Transactional
     public void adicionarContato(Long id) {
-        repository.findById(id).ifPresent(filaEspera::add);
+        clienteRepository.findById(id).ifPresent(cliente -> {
+            FilaRelatorio itemFila = new FilaRelatorio();
+            itemFila.setCliente(cliente);
+            filaRelatorioRepository.save(itemFila);
+        });
     }
 
+    @Transactional
     public void removerContato(Long id) {
-        filaEspera.removeIf(cliente -> cliente.getIdCliente().equals(id));
+        List<FilaRelatorio> todosDaFila = filaRelatorioRepository.findAll();
+        for (FilaRelatorio item : todosDaFila) {
+            if (item.getCliente().getIdCliente().equals(id)) {
+                filaRelatorioRepository.delete(item);
+            }
+        }
     }
 
+    @Transactional
     @Override
     public String exportarDados() {
-        if (filaEspera.isEmpty()) {
+        List<FilaRelatorio> listaBanco = filaRelatorioRepository.findAll();
+
+        if (listaBanco.isEmpty()) {
             return "Nenhum contato na fila do relatório.";
         }
 
         StringBuilder sb = new StringBuilder();
-
         sb.append("-- RELATÓRIO DE CONTATOS --\n");
-        for (Cliente c : filaEspera) {
+
+        for (FilaRelatorio item : listaBanco) {
+            Cliente c = item.getCliente();
             sb.append("\nEmpresa: ").append(c.getNomeEmpresa())
                     .append(" | CNPJ: ").append(c.getCnpj())
                     .append(" | Telefone: ").append(c.getTelefone())
@@ -42,17 +62,15 @@ public class RelatorioContatosService implements Exportavel {
                     .append("\n");
         }
         sb.append("\n--------------");
-        filaEspera.clear();
+
+        filaRelatorioRepository.deleteAll();
 
         return sb.toString();
     }
 
-    // getters e setters
     public List<Cliente> getFilaEspera() {
-        return filaEspera;
-    }
-
-    public void setFilaEspera(List<Cliente> filaEspera) {
-        this.filaEspera = filaEspera;
+        return filaRelatorioRepository.findAll().stream()
+                .map(FilaRelatorio::getCliente)
+                .collect(java.util.stream.Collectors.toList());
     }
 }

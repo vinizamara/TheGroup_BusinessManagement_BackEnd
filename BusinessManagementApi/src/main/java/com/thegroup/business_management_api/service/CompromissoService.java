@@ -2,6 +2,7 @@ package com.thegroup.business_management_api.service;
 
 import com.thegroup.business_management_api.model.Compromisso;
 import com.thegroup.business_management_api.repository.CompromissoRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -28,11 +29,13 @@ public class CompromissoService {
     }
 
     // Cadastra um novo compromisso
+    @Transactional
     public Compromisso cadastrar(Compromisso compromisso) {
         return repo.save(compromisso);
     }
 
     // Atualiza um compromisso existente
+    @Transactional
     public Compromisso atualizar(Long id, Compromisso alterado) {
 
         if (repo.existsById(id)) {
@@ -60,6 +63,7 @@ public class CompromissoService {
     }
 
     // Remove um compromisso pelo ID
+    @Transactional
     public boolean excluir(Long id) {
 
         if (repo.existsById(id)) {

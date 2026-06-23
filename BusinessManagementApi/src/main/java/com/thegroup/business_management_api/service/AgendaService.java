@@ -2,6 +2,7 @@ package com.thegroup.business_management_api.service;
 
 import com.thegroup.business_management_api.model.Agenda;
 import com.thegroup.business_management_api.repository.AgendaRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -28,11 +29,13 @@ public class AgendaService {
     }
 
     // Cadastra uma nova agenda
+    @Transactional
     public Agenda cadastrar(Agenda agenda) {
         return repo.save(agenda);
     }
 
     // Atualiza uma agenda existente
+    @Transactional
     public Agenda atualizar(Long id, Agenda alterada) {
 
         if (repo.existsById(id)) {
@@ -53,6 +56,7 @@ public class AgendaService {
     }
 
     // Remove uma agenda pelo ID
+    @Transactional
     public boolean excluir(Long id) {
 
         if (repo.existsById(id)) {

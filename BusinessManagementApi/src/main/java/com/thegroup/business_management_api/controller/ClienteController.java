@@ -5,7 +5,9 @@ import com.thegroup.business_management_api.model.Cliente;
 import com.thegroup.business_management_api.service.ClienteService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import java.net.URI;
 import java.util.List;
 import java.util.Optional;
 
@@ -37,9 +39,13 @@ public class ClienteController {
     public ResponseEntity<Cliente> cadastrar(@RequestBody Cliente cliente) {
         Cliente novo = service.cadastrarCliente(cliente);
         if (novo != null) {
-            return ResponseEntity.ok(novo); // retorna 200, ok
+            URI uri = ServletUriComponentsBuilder
+                    .fromCurrentRequest().path("/{id}")
+                    .buildAndExpand(novo.getIdCliente()).toUri();
+
+            return ResponseEntity.created(uri).body(novo); // Retorna 201 Created com Location
         }
-        return ResponseEntity.badRequest().build(); // retorna 400, cpnj invalido
+        return ResponseEntity.badRequest().build();
     }
 
     @PutMapping("/{id}")
@@ -54,8 +60,8 @@ public class ClienteController {
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> remover(@PathVariable Long id) {
         if (service.excluirCliente(id)) {
-            return ResponseEntity.ok().build(); // retorna 200, ok
+            return ResponseEntity.noContent().build();
         }
-        return ResponseEntity.notFound().build(); // retorna 404, id nao existe
+        return ResponseEntity.notFound().build();
     }
 }
