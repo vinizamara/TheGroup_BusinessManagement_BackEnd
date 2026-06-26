@@ -2,6 +2,7 @@ package com.thegroup.business_management_api.service;
 
 import com.thegroup.business_management_api.model.RegistroCompromissoCliente;
 import com.thegroup.business_management_api.repository.RegistroCompromissoClienteRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -28,11 +29,13 @@ public class RegistroCompromissoClienteService {
     }
 
     // Cadastra um novo registro
+    @Transactional
     public RegistroCompromissoCliente cadastrar(RegistroCompromissoCliente registro) {
         return repo.save(registro);
     }
 
     // Atualiza um registro existente
+    @Transactional
     public RegistroCompromissoCliente atualizar(Long id, RegistroCompromissoCliente alterado) {
 
         if (repo.existsById(id)) {
@@ -59,6 +62,7 @@ public class RegistroCompromissoClienteService {
     }
 
     // Remove um registro pelo ID
+    @Transactional
     public boolean excluir(Long id) {
 
         if (repo.existsById(id)) {
@@ -70,6 +74,7 @@ public class RegistroCompromissoClienteService {
     }
 
     // Atualiza a situação do cliente no compromisso
+    @Transactional
     public RegistroCompromissoCliente atualizarSituacao(
             Long id,
             String situacao) {

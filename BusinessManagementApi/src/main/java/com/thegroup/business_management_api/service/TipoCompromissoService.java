@@ -2,6 +2,7 @@ package com.thegroup.business_management_api.service;
 
 import com.thegroup.business_management_api.model.TipoCompromisso;
 import com.thegroup.business_management_api.repository.TipoCompromissoRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -25,10 +26,12 @@ public class TipoCompromissoService {
         return repo.findById(id);
     }
 
+    @Transactional
     public TipoCompromisso cadastrarTipo(TipoCompromisso tipo) {
         return repo.save(tipo);
     }
 
+    @Transactional
     public TipoCompromisso editarTipo(Long id, TipoCompromisso alterado) {
         if (repo.existsById(id)) {
             Optional<TipoCompromisso> atual = repo.findById(id);
@@ -43,6 +46,7 @@ public class TipoCompromissoService {
         return null;
     }
 
+    @Transactional
     public boolean excluirTipo(Long id) {
         if (repo.existsById(id)) {
             repo.deleteById(id);

@@ -4,7 +4,9 @@ import com.thegroup.business_management_api.model.Compromisso;
 import com.thegroup.business_management_api.service.CompromissoService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import java.net.URI;
 import java.util.List;
 import java.util.Optional;
 
@@ -37,13 +39,12 @@ public class CompromissoController {
 
     @PostMapping
     public ResponseEntity<Compromisso> cadastrar(@RequestBody Compromisso compromisso) {
-
         Compromisso novo = service.cadastrar(compromisso);
-
         if (novo != null) {
-            return ResponseEntity.ok(novo);
+            URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}")
+                    .buildAndExpand(novo.getIdCompromisso()).toUri();
+            return ResponseEntity.created(uri).body(novo);
         }
-
         return ResponseEntity.badRequest().build();
     }
 
@@ -63,12 +64,7 @@ public class CompromissoController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> remover(@PathVariable Long id) {
-
-        if (service.excluir(id)) {
-            return ResponseEntity.ok().build();
-        }
-
-        return ResponseEntity.notFound().build();
+        return service.excluir(id) ? ResponseEntity.noContent().build() : ResponseEntity.notFound().build();
     }
 
     @PatchMapping("/{id}/concluir")

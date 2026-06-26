@@ -2,6 +2,7 @@ package com.thegroup.business_management_api.service;
 
 import com.thegroup.business_management_api.model.Cliente;
 import com.thegroup.business_management_api.repository.ClienteRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -25,18 +26,20 @@ public class ClienteService {
         return repo.findById(id);
     }
 
-    // metodo para validar o cpnj
-    public boolean validarCpnj(String cpnj) {
-        return cpnj != null && cpnj.replaceAll("\\D", "").length() == 14;
+    // metodo para validar o cnpj
+    public boolean validarCnpj(String cnpj) {
+        return cnpj != null && cnpj.replaceAll("\\D", "").length() == 14;
     }
 
+    @Transactional
     public Cliente cadastrarCliente(Cliente c) {
-        if (validarCpnj(c.getCnpj())) {
-            return repo.save(c); // faz o insert se o cpnj for valido
+        if (validarCnpj(c.getCnpj())) {
+            return repo.save(c); // faz o insert se o cnpj for valido
         }
         return null;
     }
 
+    @Transactional
     public Cliente atualizarCliente(Long id, Cliente alterado) {
         if (repo.existsById(id)) {
             // se existe, armazena o registro atual para nao perder os outros campos
@@ -54,6 +57,7 @@ public class ClienteService {
         return null;
     }
 
+    @Transactional
     public boolean excluirCliente(Long id) {
         if (repo.existsById(id)) {
             repo.deleteById(id);

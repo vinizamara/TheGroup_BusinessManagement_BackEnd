@@ -2,9 +2,12 @@ package com.thegroup.business_management_api.controller;
 
 import com.thegroup.business_management_api.model.RegistroCompromissoCliente;
 import com.thegroup.business_management_api.service.RegistroCompromissoClienteService;
+import jakarta.transaction.Transactional;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import java.net.URI;
 import java.util.List;
 import java.util.Optional;
 
@@ -41,21 +44,20 @@ public class RegistroCompromissoClienteController {
     }
 
     // Cadastra um novo registro
+    @Transactional
     @PostMapping
-    public ResponseEntity<RegistroCompromissoCliente> cadastrar(
-            @RequestBody RegistroCompromissoCliente registro) {
-
-        RegistroCompromissoCliente novo =
-                service.cadastrar(registro);
-
+    public ResponseEntity<RegistroCompromissoCliente> cadastrar(@RequestBody RegistroCompromissoCliente registro) {
+        RegistroCompromissoCliente novo = service.cadastrar(registro);
         if (novo != null) {
-            return ResponseEntity.ok(novo); // retorna 200, ok
+            URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}")
+                    .buildAndExpand(novo.getIdRegistro()).toUri();
+            return ResponseEntity.created(uri).body(novo);
         }
-
-        return ResponseEntity.badRequest().build(); // retorna 400, dados invalidos
+        return ResponseEntity.badRequest().build();
     }
 
     // Atualiza um registro existente
+    @Transactional
     @PutMapping("/{id}")
     public ResponseEntity<RegistroCompromissoCliente> atualizar(
             @PathVariable Long id,
@@ -72,18 +74,14 @@ public class RegistroCompromissoClienteController {
     }
 
     // Remove um registro pelo ID
+    @Transactional
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> remover(
-            @PathVariable Long id) {
-
-        if (service.excluir(id)) {
-            return ResponseEntity.ok().build(); // retorna 200, ok
-        }
-
-        return ResponseEntity.notFound().build(); // retorna 404, id nao existe
+    public ResponseEntity<Void> remover(@PathVariable Long id) {
+        return service.excluir(id) ? ResponseEntity.noContent().build() : ResponseEntity.notFound().build();
     }
 
     // Atualiza a situação do cliente no compromisso
+    @Transactional
     @PatchMapping("/{id}/situacao")
     public ResponseEntity<RegistroCompromissoCliente> atualizarSituacao(
             @PathVariable Long id,
